@@ -1,0 +1,92 @@
+// Modelos
+import UserModel from '../database/models/userModel.js';
+import tokenModel from '../database/models/tokenModel.js';
+
+// Bibliotecas
+import bcrypt from 'bcryptjs';
+
+const select = async (req, res) => {
+    try {
+        const { id } = req.params ?? {};
+
+        if (!id) {
+            return res.status(400).json({ message: 'ID é obrigatório.' });
+        }
+
+        const user = await UserModel.findByPk(id, {
+            raw: true,
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado.' });
+        }
+
+        const { password: _, ...userSafe } = user.toObject ? user.toObject() : user;
+        return res.status(200).json(userSafe);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+};
+
+const register = async (req, res) => {
+    try {
+        const { name, email, password } = req.body ?? {};
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email e senha são obrigatórios.' });
+        }
+
+        const existing = await UserModel.findOne({ where: { email } });
+        if (existing) {
+            return res.status(409).json({ message: 'Usuário já existe.' });
+        }
+
+        const hashed = await bcrypt.hash(password, 10);
+        const user = await UserModel.create({ name, email, password: hashed });
+
+        const { password: _, ...userSafe } = user.dataValues || {};
+        return res.status(201).json(userSafe);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+};
+
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body ?? {};
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email e senha são obrigatórios." });
+        }
+
+        const user = await UserModel.findOne({
+            where: { email },
+            raw: true,
+        });
+
+        if (!user) {
+            return res.status(401).json({ message: 'Credenciais inválidas.' });
+        }
+
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res.status(401).json({ message: 'Credenciais inválidas.' });
+        }
+
+        const token = await tokenModel.create({ id_user: user.id });
+
+        if (!token){
+            return res.status(500).json({ message: "Erro ao gerar token. Contate o suporte!" });
+        }
+
+        return res.status(200).json({ token: token.token });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+};
+
+export default { register, login, select };

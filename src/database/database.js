@@ -1,0 +1,20 @@
+import dotenv from "dotenv";
+import { Sequelize } from 'sequelize';
+dotenv.config();
+
+const sequelize = new Sequelize(
+    process.env.MYSQL_DATABASE,
+    process.env.MYSQL_USER,
+    process.env.MYSQL_PASSWORD,
+    {
+        host: process.env.DB_HOST,
+        port: 3306,
+        dialect: 'mariadb',
+        define: {
+            timestamps: false,
+            freezeTableName: true,
+        }
+    }
+);
+
+export default sequelize;
