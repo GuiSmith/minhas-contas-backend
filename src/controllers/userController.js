@@ -97,4 +97,21 @@ const login = async (req, res) => {
     }
 };
 
-export default { register, login, select };
+const logout = async (req, res) => {
+    try {
+        // Limpa o cookie
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            path: '/',
+        });
+
+        return res.status(200).json({ message: 'Logout realizado com sucesso' });
+    } catch (error) {
+        console.error('Erro no logout:', error);
+        return res.status(500).json({ message: 'Erro interno no logout' });
+    }
+};
+
+export default { register, login, select, logout };

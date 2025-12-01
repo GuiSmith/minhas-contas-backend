@@ -1,6 +1,7 @@
 // Bibliotecas
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 // Middlewares
 import corsMiddleware from './src/middlewares/corsMiddleware.js';
@@ -17,6 +18,7 @@ const PORT = process.env.BACK_PORT;
 const app = express();
 app.use(express.json());
 app.use(cors(corsMiddleware.options));
+app.use(cookieParser());
 app.use(authMiddleware.auth);
 
 // Conexão com DB
@@ -29,7 +31,8 @@ database
     });
 
 // Rotas
-app.get('/', (req, res, next) => res.status(200).json({ mensagem: 'ok' }));
+app.get('/', (req, res, next) => res.status(200).json({ message: 'API is ok' }));
+app.get('/auth', (req, res, next) => res.status(200).json({ message: 'Autorizado' }));
 app.use('/user', userRoutes);
 
 app.listen(

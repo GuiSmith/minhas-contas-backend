@@ -12,6 +12,8 @@ const tokenExpirationMiliseconds = tokenExpirationHour * 60 * 60 * 1000;
 
 const auth = async (req, res, next) => {
     try {
+        console.log(req.cookies);
+
         // If route is pubic, continue
         const isPublicRoute = publicRoutes.find(route => route.path == req.path && route.method == req.method);
         if (isPublicRoute) {
@@ -19,14 +21,23 @@ const auth = async (req, res, next) => {
         }
 
         // Retrieving token
-        const token = req.headers['authorization']?.split(" ")[1];
-        if (!token) {
-            return res.status(401).json({ message: `Token de autenticação não informado` });
+        let retrievedToken;
+        const cookieToken = req.cookies.session ?? null;
+
+        if(cookieToken === null){
+            const headerToken = req.headers['authorization']?.split(" ")[1];
+            if(!headerToken){
+                return res.status(401).json({ message: `Token de autenticação não informado` });
+            } else {
+                retrievedToken = headerToken;
+            }
+        } else {
+            retrievedToken = cookieToken;
         }
 
         // Finding token
         const existingToken = await TokenModel.findOne({
-            where: { token },
+            where: { token: retrievedToken },
             raw: true,
         });
 
