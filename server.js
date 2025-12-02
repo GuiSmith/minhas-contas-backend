@@ -12,6 +12,7 @@ import database from './src/database/database.js';
 
 // Rotas
 import userRoutes from './src/routes/userRoutes.js';
+import categoryRoutes from './src/routes/categoryRoutes.js';
 
 const PORT = process.env.BACK_PORT;
 
@@ -33,7 +34,9 @@ database
 // Rotas
 app.get('/', (req, res, next) => res.status(200).json({ message: 'API is ok' }));
 app.get('/auth', (req, res, next) => res.status(200).json({ message: 'Autorizado' }));
+
 app.use('/user', userRoutes);
+app.use('/category', categoryRoutes);
 
 app.listen(
     PORT,
