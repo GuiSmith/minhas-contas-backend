@@ -5,3 +5,5 @@ const router = express.Router();
 
 router.get('/list', categoryController.list);
 router.post('/', categoryController.create);
+
+export default router;

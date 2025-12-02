@@ -73,4 +73,4 @@ const create = async (req, res) => {
     }
 };
 
-export { list, create };
+export default { list, create };
