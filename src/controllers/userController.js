@@ -5,23 +5,12 @@ import tokenModel from '../database/models/tokenModel.js';
 // Bibliotecas
 import bcrypt from 'bcryptjs';
 
-const select = async (req, res) => {
+const profile = async (req, res) => {
     try {
-        const { id } = req.params ?? {};
-
-        if (!id) {
-            return res.status(400).json({ message: 'ID é obrigatório.' });
-        }
-
-        const user = await UserModel.findByPk(id, {
-            raw: true,
-        });
-
-        if (!user) {
-            return res.status(404).json({ message: 'Usuário não encontrado.' });
-        }
-
+        // Sanitizing password
+        const user = req.user;
         const { password: _, ...userSafe } = user.toObject ? user.toObject() : user;
+
         return res.status(200).json(userSafe);
     } catch (error) {
         console.log(error);
@@ -114,4 +103,4 @@ const logout = async (req, res) => {
     }
 };
 
-export default { register, login, select, logout };
+export default { register, login, profile, logout };

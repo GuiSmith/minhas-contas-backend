@@ -56,7 +56,7 @@ const auth = async (req, res, next) => {
 
         // Authenticated
         // Retrieving user information
-        const user = await UserModel.findByPk(existingToken.id_user);
+        const user = await UserModel.findByPk(existingToken.id_user, { raw: true });
 
         req.user = user;
         return next();
