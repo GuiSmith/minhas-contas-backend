@@ -12,7 +12,6 @@ const tokenExpirationMiliseconds = tokenExpirationHour * 60 * 60 * 1000;
 
 const auth = async (req, res, next) => {
     try {
-        console.log(req.cookies);
 
         // If route is pubic, continue
         const isPublicRoute = publicRoutes.find(route => route.path == req.path && route.method == req.method);

@@ -37,6 +37,32 @@ const recursiveDescription = async (id_categoria) => {
     return "";
 };
 
+const select = async (req, res) => {
+    try {
+        const { id } = req.params.id ?? 0;
+
+        if(id === 0){
+            return res.status(400).json({ message: `ID de categoria inválido!` })
+        }
+
+        const category = await CategoryModel.findByPk(id,{
+            raw: true,
+        });
+
+        if(!category){
+            return res.status(400).json({ message: "Categoria não encontrada!" });
+        }
+
+        category.descricao = recursiveDescription(category.id);
+
+        return res.status(200).json(category);
+    } catch (error) {
+        console.log('Erro ao selecionar categoria!');
+        console.log(error);
+        return res.status(500).json({ message: "Erro desconhecido, por favor contate o suporte!" });
+    }
+};
+
 const list = async (req, res) => {
     try {
         const categories = await CategoryModel.findAll({
@@ -165,4 +191,4 @@ const update = async (req, res) => {
     }
 };
 
-export default { list, create, update };
+export default { select, list, create, update };
