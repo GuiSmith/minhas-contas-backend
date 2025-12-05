@@ -24,12 +24,29 @@ const recursiveCheckCategory = async (intended_id_categoria, id_categoria) => {
     return recursiveCheckCategory(intended_id_categoria, category.id_categoria);
 };
 
+const recursiveDescription = async (id_categoria) => {
+    const category = await CategoryModel.findByPk(id_categoria);
+    if (category) {
+        if (category.id_categoria) {
+            return await recursiveDescription(category.id_categoria) + " > " + category.descricao;
+        } else {
+            return category.descricao;
+        }
+    }
+
+    return "";
+};
+
 const list = async (req, res) => {
     try {
         const categories = await CategoryModel.findAll({
             where: { id_user: req.user.id },
-            raw: true,
+            raw: true
         });
+
+        for (const category of categories) {
+            category.descricao = await recursiveDescription(category.id);
+        }
 
         return res.status(200).json(categories);
     } catch (error) {
@@ -43,7 +60,7 @@ const create = async (req, res) => {
     try {
 
         const requiredColumns = ['descricao'];
-        const permittedColumns = ['descricao','id_categoria'];
+        const permittedColumns = ['descricao', 'id_categoria'];
 
         const data = req.body ?? {};
 
